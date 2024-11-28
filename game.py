@@ -11,7 +11,7 @@ def upd_df1(): #updates the dataset where every game ever played is stored
     guesses = st.session_state.guesses
 
     filepath = os.path.join(os.getcwd(), 'df1.csv')
-    df1 = pd.read_txt(filepath)
+    df1 = pd.read_csv(filepath)
     
     #it only incluedes country and number of guesses
     new_data = {'country': country, 'number_of_guesses': guesses}
