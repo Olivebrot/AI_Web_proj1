@@ -100,7 +100,7 @@ st.page_link("pages/statistics.py", label="Statistics")
 if st.session_state.game == True:
     with st.chat_message("assistant"):
         st.markdown('Guess the Country I am thinking of')
-        st.markdown('I will awnser your quesiotns with Yes or No and dont write in capital letters')
+        st.markdown('I will awnser your questions with Yes or No')
         st.markdown('When you know the country Type only the country in lower letters like: "brazil" ')
         st.markdown('If you win you will get a COOKIE')
 else:
@@ -126,12 +126,6 @@ if st.session_state.game == True:
                 st.error(msg)
                 st.session_state.history.append({'role': 'assistant', 'content': msg})
         else:
-            #No Capital letters
-            if re.search(r'[A-Z]', guess):
-                with st.chat_message("assistant"):
-                    msg = 'Please enter a valid Text.'
-                    st.error(msg)
-                    st.session_state.history.append({'role': 'assistant', 'content': msg})
             
             #add a guess to the guesses and save it
             st.session_state.guesses += 1
