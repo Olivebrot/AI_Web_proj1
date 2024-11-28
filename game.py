@@ -5,24 +5,23 @@ import re
 import os
 import pandas as pd
 
-#read dataset df1
 
-
-def upd_df1(): #i need st.session_state.guesses and st.session_state.country
+def upd_df1(): #updates the dataset where every game ever played is stored
     country = st.session_state.country
     guesses = st.session_state.guesses
 
     filepath = os.path.join(os.getcwd(), 'df1.csv')
     df1 = pd.read_csv(filepath)
-
+    
+    #it only incluedes country and number of guesses
     new_data = {'country': country, 'number_of_guesses': guesses}
     df1 = pd.concat([df1, pd.DataFrame([new_data])], ignore_index=True)
     df1.to_csv(filepath, index=False)
 
 
-def aiChat_start():
-    #giving the Key
-    client = OpenAI(api_key="sk-svcacct-MsSVPSi-ZLeCMMsNMJebn_K9otA6E5OPWEuk3_c1YS-mIoIS9SrahXzwv46Yo3bT3BlbkFJAG6_9HElJ0l835lTrQ3m3aMBG8T5m1hHC1LViVb604ZwDJEMRbd-0IuaF10U2AA")
+def aiChat_start(): #in the beginning of every session this has to run for the first prompt
+        #giving the Key
+    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
     # Model selection
     model = "gpt-4o-mini"
     
@@ -47,9 +46,9 @@ def aiChat_start():
     st.session_state.country = country  # Save the chosen country
     
 
-def aiChat_awnser(guess):
+def aiChat_awnser(guess): #combines the awnser of the first prompt with the question of latest question of the user
     #giving the Key
-    client = OpenAI(api_key="sk-svcacct-MsSVPSi-ZLeCMMsNMJebn_K9otA6E5OPWEuk3_c1YS-mIoIS9SrahXzwv46Yo3bT3BlbkFJAG6_9HElJ0l835lTrQ3m3aMBG8T5m1hHC1LViVb604ZwDJEMRbd-0IuaF10U2AA")
+    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
     # Model selection
     model = "gpt-4o-mini"
 
@@ -84,6 +83,7 @@ if 'country' not in st.session_state:
 
 st.title('Mystery Country Guessing Game')
 
+#creates two buttons one to restart the game and one for dev to know the awnser
 left, right = st.columns(2)
 if left.button("New Game", use_container_width=True):
     left.markdown("Okay new game")
@@ -92,8 +92,11 @@ if right.button("help", icon="😃", use_container_width=True):
     right.markdown("okay here is your hint")
     right.markdown(st.session_state.country)
 
+#links the game page to the statsitics page
 st.page_link("pages/statistics.py", label="Statistics")
 
+#the first text and beginning of each session starting from the assistant
+#two modes game is going = true or game ended = false
 if st.session_state.game == True:
     with st.chat_message("assistant"):
         st.markdown('Guess the Country I am thinking of')
@@ -104,7 +107,7 @@ else:
     with st.chat_message("assistant"):
         st.success(f'Congratulations! You guessed the country in {st.session_state.guesses} guesses.')
         st.markdown('You earned Your COOKIE')
-        upd_df1()
+        upd_df1() #updates the csv
         
 
 # Display chat messages from history on app rerun
@@ -130,10 +133,12 @@ if st.session_state.game == True:
                     st.error(msg)
                     st.session_state.history.append({'role': 'assistant', 'content': msg})
             
+            #add a guess to the guesses and save it
             st.session_state.guesses += 1
             user_msg = f'Guess #{st.session_state.guesses}: {guess}'
             st.session_state.history.append({"role": "user", "content": user_msg})
             
+            #writes teh save down in the chat
             with st.chat_message("user"):
                 st.markdown(user_msg)
 
@@ -142,21 +147,11 @@ if st.session_state.game == True:
             if guess == st.session_state.country:
                 st.session_state.game = False
                 st.rerun()
-            else:
+            else:#if guess wrong gbt awnsers with yes or no
                 with st.chat_message("assistant"):
                     st.write(aiChat_awnser(guess))
         
                 
                     
-            
-                        
-            # else:
-            #     if guess < st.session_state.secret_number:
-            #         msg = f'{guess} is too low. Try again!'
-            #     else:
-            #         msg = f'{guess} is too high. Try again!'
-                
-            #     st.session_state.history.append({'role': 'assistant', 'content': msg})
-            #     with st.chat_message("assistant"):
-            #         st.markdown(msg)
+           
 
